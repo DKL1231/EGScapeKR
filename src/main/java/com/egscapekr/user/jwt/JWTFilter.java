@@ -1,13 +1,16 @@
 package com.egscapekr.user.jwt;
 
 import com.egscapekr.user.dto.CustomUserDetails;
+import com.egscapekr.user.entity.RefreshToken;
 import com.egscapekr.user.entity.User;
+import com.egscapekr.user.repository.RefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +22,13 @@ import java.io.IOException;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
 
-    public JWTFilter(JWTUtil jwtUtil) {
+    public JWTFilter(JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
 
@@ -41,16 +46,39 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String token = authorizationHeader.split(" ")[1];
 
-        if(jwtUtil.isTokenExpired(token)){
-            logger.info("token expired");
-            filterChain.doFilter(request, response);
+        if(jwtUtil.isTokenExpired(token, true)){
+            logger.error("Access token expired");
 
+            RefreshToken foundTokenInfo = refreshTokenRepository.findByAccessToken(token)
+                            .orElseThrow(() -> new ApplicationContextException("Refresh token not found"));
+
+            String refreshToken = foundTokenInfo.getRefreshToken();
+
+            if(jwtUtil.isTokenExpired(refreshToken, false)){
+                logger.error("Refresh token expired");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            // Refresh Token이 유효하다면
+            String username = String.valueOf(foundTokenInfo.getUsername());
+            String role = String.valueOf(foundTokenInfo.getRole());
+
+            createToken(username, role);
+
+            filterChain.doFilter(request, response);
             return;
         }
 
         String username = jwtUtil.getUsernameFromToken(token);
         String role = jwtUtil.getRoleFromToken(token);
 
+        createToken(username, role);
+
+        filterChain.doFilter(request, response);
+    }
+
+    private void createToken(String username, String role){
         User user = new User();
 
         user.setUsername(username);
@@ -64,7 +92,5 @@ public class JWTFilter extends OncePerRequestFilter {
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        filterChain.doFilter(request, response);
     }
 }

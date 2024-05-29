@@ -8,36 +8,52 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Map;
 
 @Component
 public class JWTUtil {
 
-    private SecretKey secretKey;
+    private final SecretKey secretAccessKey;
+    private final SecretKey secretRefreshKey;
 
-    public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public JWTUtil(@Value("${spring.jwt.secret-access}") String secretAccess, @Value("${spring.jwt.secret-refresh}") String secretRefresh) {
+        this.secretAccessKey = new SecretKeySpec(secretAccess.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.secretRefreshKey = new SecretKeySpec(secretRefresh.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
     public String getUsernameFromToken(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
+        return Jwts.parser().verifyWith(secretAccessKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
     }
 
     public String getRoleFromToken(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
+        return Jwts.parser().verifyWith(secretAccessKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
-    public Boolean isTokenExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    /**
+     * type true: AccessToken
+     * false: RefreshToken
+     */
+    public Boolean isTokenExpired(String token, boolean type) {
+        if (type)
+            return Jwts.parser().verifyWith(secretAccessKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        else
+            return Jwts.parser().verifyWith(secretRefreshKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJWT(String username, String role, Long expiredMs) {
+    public String createAccessToken(String username, String role, Long expiredMs) {
         return Jwts.builder()
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+expiredMs))
-                .signWith(secretKey)
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretAccessKey)
+                .compact();
+    }
+
+    public String createRefreshToken(Long expiredMs) {
+        return Jwts.builder()
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretRefreshKey)
                 .compact();
     }
 }

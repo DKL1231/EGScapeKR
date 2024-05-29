@@ -3,6 +3,7 @@ package com.egscapekr.user.config;
 import com.egscapekr.user.jwt.JWTFilter;
 import com.egscapekr.user.jwt.JWTUtil;
 import com.egscapekr.user.jwt.LoginFilter;
+import com.egscapekr.user.repository.RefreshTokenRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,10 +22,12 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration configuration;
     private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public SecurityConfig(AuthenticationConfiguration configuration, JWTUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration configuration, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
         this.configuration = configuration;
         this.jwtUtil = jwtUtil;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Bean
@@ -60,8 +63,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
-        http.addFilterAt(new LoginFilter(authenticationManager(configuration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(configuration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JWTFilter(jwtUtil, refreshTokenRepository), LoginFilter.class);
 
 
         //세션 설정
