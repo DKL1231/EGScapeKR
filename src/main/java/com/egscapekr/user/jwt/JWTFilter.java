@@ -45,7 +45,11 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         String token = authorizationHeader.split(" ")[1];
-
+        /*
+            TODO : ExpiredJwtException 이 발생하기 때문에 처리 필요
+                   refreshToken 의 처리도 추가적으로 필요 - requestBody 에서 refreshToken 가져오는식?
+                   다른 방식을 구현한다면 프론트 구현할 때 다시 생각해보도록
+         */
         if(jwtUtil.isTokenExpired(token, true)){
             logger.error("Access token expired");
 

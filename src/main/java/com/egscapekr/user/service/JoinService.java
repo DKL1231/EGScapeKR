@@ -1,6 +1,6 @@
 package com.egscapekr.user.service;
 
-import com.egscapekr.user.dto.JoinDTO;
+import com.egscapekr.user.dto.UserDTO;
 import com.egscapekr.user.entity.User;
 import com.egscapekr.user.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,16 +17,16 @@ public class JoinService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public void joinProcess(JoinDTO joinDTO){
+    public void joinProcess(UserDTO userDTO){
 
-        String username = joinDTO.getUsername();
-        String password = joinDTO.getPassword();
-        String nickname = joinDTO.getNickname();
-        String email = joinDTO.getEmail();
+        String username = userDTO.getUsername();
+        String password = userDTO.getPassword();
+        String nickname = userDTO.getNickname();
+        String email = userDTO.getEmail();
 
-        Boolean isExist = userRepository.existsByUsername(username);
-
-        if(isExist){
+        Boolean isExistUsername = userRepository.existsByUsername(username);
+        Boolean isExistEmail = userRepository.existsByEmail(email);
+        if(isExistUsername||isExistEmail){
             return;
         }
 
