@@ -24,9 +24,7 @@ public class JoinService {
         String nickname = userDTO.getNickname();
         String email = userDTO.getEmail();
 
-        Boolean isExistUsername = userRepository.existsByUsername(username);
-        Boolean isExistEmail = userRepository.existsByEmail(email);
-        if(isExistUsername||isExistEmail){
+        if(checkDuplication(userDTO)){
             return;
         }
 
@@ -40,5 +38,14 @@ public class JoinService {
         data.setRole("ROLE_USER");
 
         userRepository.save(data);
+    }
+
+    public Boolean checkDuplication(UserDTO userDTO){
+        String username = userDTO.getUsername();
+        String email = userDTO.getEmail();
+
+        Boolean isExistUsername = userRepository.existsByUsername(username);
+        Boolean isExistEmail = userRepository.existsByEmail(email);
+        return isExistUsername || isExistEmail;
     }
 }
