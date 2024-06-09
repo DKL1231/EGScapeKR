@@ -1,8 +1,10 @@
 package com.egscapekr.user.jwt;
 
 import com.egscapekr.user.dto.CustomUserDetails;
+import com.egscapekr.user.dto.UserDTO;
 import com.egscapekr.user.entity.RefreshToken;
 import com.egscapekr.user.repository.RefreshTokenRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -39,7 +41,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
         String username = obtainUsername(req);
         String pwd = obtainPassword(req);
+        if(username == null || pwd == null) {
+            ObjectMapper om = new ObjectMapper();
 
+            try {
+                UserDTO user = om.readValue(req.getInputStream(), UserDTO.class);
+                username = user.getUsername();
+                pwd = user.getPassword();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, pwd, null);
 
         return authenticationManager.authenticate(authToken);
