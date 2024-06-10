@@ -17,6 +17,14 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    public boolean isExistUsername(String username){
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean isExistEmail(String email){
+        return userRepository.existsByEmail(email);
+    }
+
     public boolean isExistData(UserDTO userDTO){
         return userRepository.existsByUsername(userDTO.getUsername()) && userRepository.existsByEmail(userDTO.getEmail());
     }

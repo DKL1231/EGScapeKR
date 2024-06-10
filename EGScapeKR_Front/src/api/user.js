@@ -5,9 +5,38 @@ function login(username, password, success, fail) {
     .post(`/login`, {
       username: username,
       password: password,
-    })
-    .then(success)
+    }, { withCredentials: true })
+    .then(response => {
+      // JWT 토큰을 응답 헤더에서 가져오기
+      const token = response.headers['authorization'];
+      console.log(token);
+      if (token) {
+        // 로컬스토리지에 JWT 토큰 저장
+        localStorage.setItem('accessToken', token);
+      }
+      // 성공 콜백 호출
+      success(response);
+    }
+    )
     .catch(fail);
+}
+
+function unameDupCheck(username, success, fail){
+  myaxios
+  .post(`/user/unamecheck`, {
+    username: username
+  })
+  .then(success)
+  .catch(fail);
+}
+
+function emailDupCheck(email, success, fail){
+  myaxios
+  .post(`/user/emailcheck`, {
+    email: email
+  })
+  .then(success)
+  .catch(fail);
 }
 
 function signup(username, password, nickname, email, verifyCode, success, fail) {
@@ -45,4 +74,4 @@ function resetPassword(username, email, success, fail) {
       .catch(fail)
 }
 
-export { login, signup, getVerifyCode, resetPassword };
+export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck };

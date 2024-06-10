@@ -6,10 +6,13 @@ import com.egscapekr.user.entity.EmailVerify;
 import com.egscapekr.user.repository.EmailVerifyRepository;
 import com.egscapekr.user.service.JoinService;
 import com.egscapekr.user.service.MailService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @Controller
@@ -27,22 +30,24 @@ public class JoinController {
     }
 
     @PostMapping("/join")
-    public String joinProcess(UserDTO userDTO){
+    public String joinProcess(HttpServletResponse res, @RequestBody UserDTO userDTO){
         if(verifyEmail(userDTO)) {
             joinService.joinProcess(userDTO);
-            return "ok";
+            return "join success";
         }
-        return "false";
+        res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return "join failed";
     }
 
     /*
     * 인증 메일을 전송하는 API 입니다.
     * */
     @PostMapping("/join/email")
-    public String joinEmail(UserDTO userDTO){
+    public String joinEmail(@RequestBody UserDTO userDTO){
         if(joinService.checkDuplication(userDTO)){
             return "duplicate userName or Email";
         }
+        System.out.println(userDTO.getEmail());
         MailDTO mailDTO = mailService.createVerificationMail(userDTO);
         System.out.println(userDTO.getVerifyCode());
         emailVerifyRepository.save(new EmailVerify(userDTO.getUsername(), userDTO.getEmail(), userDTO.getVerifyCode()));
@@ -53,7 +58,7 @@ public class JoinController {
     /*
      * 인증된 메일인지 판단하는 함수 입니다.
      */
-    private Boolean verifyEmail(UserDTO userDTO){
+    private Boolean verifyEmail(@RequestBody UserDTO userDTO){
         List<EmailVerify> verifyList =  emailVerifyRepository.findByVerifyCode(userDTO.getVerifyCode());
         for(EmailVerify emailVerify : verifyList){
             if(emailVerify.getEmail().equals(userDTO.getEmail())){

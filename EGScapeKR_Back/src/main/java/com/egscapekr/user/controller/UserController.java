@@ -24,10 +24,26 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/user/unamecheck")
+    public String unameCheck(HttpServletResponse res, @RequestBody UserDTO userDTO){
+        if(userService.isExistUsername(userDTO.getUsername())){
+            res.setStatus(HttpServletResponse.SC_CONFLICT);
+            return "duplicated username";
+        }
+        return "unduplicated username";
+    }
+
+    @PostMapping("/user/emailcheck")
+    public String emailCheck(HttpServletResponse res, @RequestBody UserDTO userDTO){
+        if(userService.isExistEmail(userDTO.getEmail())){
+            res.setStatus(HttpServletResponse.SC_CONFLICT);
+            return "duplicated email";
+        }
+        return "unduplicated email";
+    }
+
     @PostMapping("/user/resetpw")
     public String resetPassword(HttpServletResponse res, @RequestBody UserDTO userDTO) {
-        System.out.println(userDTO.getUsername());
-        System.out.println(userDTO.getEmail());
         if(userService.isExistData(userDTO)){
             MailDTO mailDTO = mailService.createResetMail(userDTO);
             userService.passwordReset(userDTO);
