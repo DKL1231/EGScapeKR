@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
       if (refreshToken.value) {
         try {
           const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken: refreshToken.value });
-          tokenStore.setTokens(data.accessToken, data.refreshToken);
+          tokenStore.setTokens(data.accessToken, Cookies.get('refreshToken'));
           originalRequest.headers['Authorization'] = `${data.accessToken}`;
           return axios(originalRequest);
         } catch (e) {

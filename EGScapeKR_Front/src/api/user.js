@@ -14,8 +14,6 @@ function login(username, password, success, fail) {
       // JWT 토큰을 응답 헤더에서 가져오기
       const token = response.headers['authorization'];
       if (token) {
-        // 로컬스토리지에 JWT 토큰 저장
-        localStorage.setItem('accessToken', token);
         tokenStore.setTokens(token, Cookies.get('refreshToken'));
       }
       getUserName(null);
