@@ -1,6 +1,10 @@
 import myaxios from "@/utils/axios-common.js";
+import { useTokenStore } from "@/stores/auth";
+import Cookies from "js-cookie";
+
 
 function login(username, password, success, fail) {
+  const tokenStore = useTokenStore();
   myaxios
     .post(`/login`, {
       username: username,
@@ -9,11 +13,12 @@ function login(username, password, success, fail) {
     .then(response => {
       // JWT 토큰을 응답 헤더에서 가져오기
       const token = response.headers['authorization'];
-      console.log(token);
       if (token) {
         // 로컬스토리지에 JWT 토큰 저장
         localStorage.setItem('accessToken', token);
+        tokenStore.setTokens(token, Cookies.get('refreshToken'));
       }
+      getUserName(null);
       // 성공 콜백 호출
       success(response);
     }
@@ -74,4 +79,15 @@ function resetPassword(username, email, success, fail) {
       .catch(fail)
 }
 
-export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck };
+function getUserName(fail){
+  const authStore = useTokenStore();
+  myaxios
+  .post(`/user/getnickname`)
+  .then((data)=>{
+    authStore.nickname = data.data;
+    authStore.setNickname(data.data);
+  })
+  .catch(fail)
+}
+
+export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserName };

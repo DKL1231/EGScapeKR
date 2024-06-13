@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/apiConfig';
-import Cookies from 'js-cookie';
+import { useTokenStore } from '../stores/auth';
+import { storeToRefs } from 'pinia';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -12,9 +13,10 @@ const apiClient = axios.create({
 // 요청 인터셉터
 apiClient.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers['Authorization'] = `${token}`;
+    const tokenStore = useTokenStore();
+    const { accessToken } = storeToRefs(tokenStore);
+    if (accessToken.value) {
+      config.headers['Authorization'] = `${accessToken.value}`;
     }
     return config;
   },
@@ -32,18 +34,18 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const refreshToken = Cookies.get('refreshToken');
-      console.log(refreshToken);
-      if (refreshToken) {
+      const tokenStore = useTokenStore();
+      const { refreshToken } = storeToRefs(tokenStore);
+      console.log(refreshToken.value);
+      if (refreshToken.value) {
         try {
-          const { data } = await axios.post(`https://${API_BASE_URL}/auth/refresh`, { refreshToken });
-          localStorage.setItem('accessToken', data.accessToken);
-          Cookies.set('refreshToken', data.refreshToken);
+          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken: refreshToken.value });
+          tokenStore.setTokens(data.accessToken, data.refreshToken);
           originalRequest.headers['Authorization'] = `${data.accessToken}`;
           return axios(originalRequest);
         } catch (e) {
           console.error('Refresh token failed', e);
-          clearTokens();
+          tokenStore.clearTokens();
         }
       }
     }
@@ -52,9 +54,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
-
-function clearTokens() {
-  localStorage.removeItem('accessToken');
-  Cookies.remove('refreshToken');
-}

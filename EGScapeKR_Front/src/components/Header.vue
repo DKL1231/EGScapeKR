@@ -1,5 +1,27 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { computed, onMounted } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
+import { useTokenStore } from '../stores/auth';
+import { getUserName } from '@/api/user';
+
+const tokenStore = useTokenStore();
+const router = useRouter();
+
+const nickname = computed(() => tokenStore.nickname);
+
+const logout = () => {
+  tokenStore.clearTokens();
+  tokenStore.clearNickname();
+  router.push('/login');
+};
+
+onMounted(() => {
+  if (tokenStore.accessToken) {
+    getUserName((error)=>{
+      console.log(error);
+    })
+  }
+});
 </script>
 
 <template>
@@ -22,10 +44,10 @@ import { RouterLink } from "vue-router";
           style="--bs-scroll-height: 100px"
         >
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">asdf</RouterLink>
+            <RouterLink to="/" class="nav-link">메인</RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink to="/" class="nav-link">asdf</RouterLink>
+            <RouterLink to="/about" class="nav-link">About</RouterLink>
           </li>
         </ul>
 
@@ -33,12 +55,32 @@ import { RouterLink } from "vue-router";
           class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll"
           style="--bs-scroll-height: 100px"
         >
-          <li class="nav-item">
-            <RouterLink to="/login" class="nav-link">로그인</RouterLink>
-          </li>
-          <li class="nav-item">
-            <RouterLink to="/signup" class="nav-link">회원가입</RouterLink>
-          </li>
+          <template v-if="nickname">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                환영합니다, {{ nickname }}
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><RouterLink class="dropdown-item" to="/mypage">마이페이지</RouterLink></li>
+                <li><a class="dropdown-item" href="#" @click="logout">로그아웃</a></li>
+              </ul>
+            </li>
+          </template>
+          <template v-else>
+            <li class="nav-item">
+              <RouterLink to="/login" class="nav-link">로그인</RouterLink>
+            </li>
+            <li class="nav-item">
+              <RouterLink to="/signup" class="nav-link">회원가입</RouterLink>
+            </li>
+          </template>
         </ul>
       </div>
     </div>
