@@ -1,5 +1,6 @@
 package com.egscapekr.user.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,10 +34,17 @@ public class JWTUtil {
      * false: RefreshToken
      */
     public Boolean isTokenExpired(String token, boolean type) {
-        if (type)
-            return Jwts.parser().verifyWith(secretAccessKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
-        else
-            return Jwts.parser().verifyWith(secretRefreshKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        try {
+            if (type)
+                return Jwts.parser().verifyWith(secretAccessKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+            else
+                return Jwts.parser().verifyWith(secretRefreshKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        }catch (ExpiredJwtException e){
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return true;
+        }
     }
 
     public String createAccessToken(String username, String role, Long expiredMs) {

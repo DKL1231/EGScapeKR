@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/apiConfig';
-import { setAuthHeaders, getRefreshToken, setAccessToken, clearTokens } from '../utils/auth';
+import Cookies from 'js-cookie';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,12 +9,13 @@ const apiClient = axios.create({
   },
 });
 
+// 요청 인터셉터
 apiClient.interceptors.request.use(
   config => {
-    config.headers = {
-      ...config.headers,
-      ...setAuthHeaders(),
-    };
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers['Authorization'] = `${token}`;
+    }
     return config;
   },
   error => {
@@ -22,53 +23,28 @@ apiClient.interceptors.request.use(
   }
 );
 
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-function onRrefreshed(token) {
-  refreshSubscribers.map(callback => callback(token));
-}
-
-function addRefreshSubscriber(callback) {
-  refreshSubscribers.push(callback);
-}
-
+// 응답 인터셉터
 apiClient.interceptors.response.use(
-  response => response,
+  response => {
+    return response;
+  },
   async error => {
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          addRefreshSubscriber(token => {
-            originalRequest.headers['Authorization'] = 'Bearer ' + token;
-            resolve(apiClient(originalRequest));
-          });
-        });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = getRefreshToken();
+      const refreshToken = Cookies.get('refreshToken');
+      console.log(refreshToken);
       if (refreshToken) {
         try {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, { token: refreshToken });
-          const newAccessToken = response.data.accessToken;
-          setAccessToken(newAccessToken);
-          axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-          isRefreshing = false;
-          onRrefreshed(newAccessToken);
-          refreshSubscribers = [];
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          isRefreshing = false;
+          const { data } = await axios.post(`https://${API_BASE_URL}/auth/refresh`, { refreshToken });
+          localStorage.setItem('accessToken', data.accessToken);
+          Cookies.set('refreshToken', data.refreshToken);
+          originalRequest.headers['Authorization'] = `${data.accessToken}`;
+          return axios(originalRequest);
+        } catch (e) {
+          console.error('Refresh token failed', e);
           clearTokens();
-          return Promise.reject(refreshError);
         }
-      } else {
-        clearTokens();
-        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
@@ -76,3 +52,9 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+
+
+function clearTokens() {
+  localStorage.removeItem('accessToken');
+  Cookies.remove('refreshToken');
+}

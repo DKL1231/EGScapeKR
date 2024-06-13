@@ -6,6 +6,7 @@ import com.egscapekr.user.entity.User;
 import com.egscapekr.user.repository.RefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -35,40 +36,17 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
-
+        logger.info("authorizationHeader: {}", authorizationHeader);
         // header 검증
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             logger.info("token null");
             filterChain.doFilter(request, response);
-
             return;
         }
 
         String token = authorizationHeader.split(" ")[1];
-        /*
-            TODO : ExpiredJwtException 이 발생하기 때문에 처리 필요
-                   refreshToken 의 처리도 추가적으로 필요 - requestBody 에서 refreshToken 가져오는식?
-                   다른 방식을 구현한다면 프론트 구현할 때 다시 생각해보도록
-         */
         if(jwtUtil.isTokenExpired(token, true)){
-            logger.error("Access token expired");
-
-            RefreshToken foundTokenInfo = refreshTokenRepository.findByAccessToken(token)
-                            .orElseThrow(() -> new ApplicationContextException("Refresh token not found"));
-
-            String refreshToken = foundTokenInfo.getRefreshToken();
-
-            if(jwtUtil.isTokenExpired(refreshToken, false)){
-                logger.error("Refresh token expired");
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            // Refresh Token이 유효하다면
-            String username = String.valueOf(foundTokenInfo.getUsername());
-            String role = String.valueOf(foundTokenInfo.getRole());
-
-            createToken(username, role);
+            logger.error("Access token expired or Invalid");
 
             filterChain.doFilter(request, response);
             return;
