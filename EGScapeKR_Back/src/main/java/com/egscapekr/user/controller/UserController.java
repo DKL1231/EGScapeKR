@@ -9,14 +9,12 @@ import com.egscapekr.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @ResponseBody
 @CrossOrigin(origins="http://localhost:5173")
+@RequestMapping("/user")
 public class UserController {
     private final JWTUtil jwtUtil;
     private final MailService mailService;
@@ -28,7 +26,7 @@ public class UserController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/user/getnickname")
+    @PostMapping("/getnickname")
     public String getNickname(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = request.getHeader("Authorization").split(" ")[1];
         try {
@@ -40,7 +38,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/unamecheck")
+    @PostMapping("/unamecheck")
     public String unameCheck(HttpServletResponse res, @RequestBody UserDTO userDTO){
         if(userService.isExistUsername(userDTO.getUsername())){
             res.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -49,7 +47,7 @@ public class UserController {
         return "unduplicated username";
     }
 
-    @PostMapping("/user/emailcheck")
+    @PostMapping("/emailcheck")
     public String emailCheck(HttpServletResponse res, @RequestBody UserDTO userDTO){
         if(userService.isExistEmail(userDTO.getEmail())){
             res.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -58,7 +56,7 @@ public class UserController {
         return "unduplicated email";
     }
 
-    @PostMapping("/user/resetpw")
+    @PostMapping("/resetpw")
     public String resetPassword(HttpServletResponse res, @RequestBody UserDTO userDTO) {
         if(userService.isExistData(userDTO)){
             MailDTO mailDTO = mailService.createResetMail(userDTO);
@@ -68,5 +66,22 @@ public class UserController {
         }
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return "reset failed";
+    }
+
+    @PostMapping("/verifypass")
+    public String verifyPassword(HttpServletRequest req, HttpServletResponse res, @RequestBody UserDTO userDTO) {
+        String accessToken = req.getHeader("Authorization").split(" ")[1];
+        try {
+            if(userService.verifyPass(jwtUtil.getUsernameFromToken(accessToken), userDTO.getPassword())){
+                res.setStatus(HttpServletResponse.SC_OK);
+                return "password verified";
+            }else{
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return "password verification failed";
+            }
+        }catch (Exception e) {
+            res.setStatus(HttpServletResponse.SC_CONFLICT);
+            return null;
+        }
     }
 }

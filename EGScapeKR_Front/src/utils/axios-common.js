@@ -45,6 +45,7 @@ apiClient.interceptors.response.use(
           return axios(originalRequest);
         } catch (e) {
           console.error('Refresh token failed', e);
+          alert("로그인이 만료되었습니다.");
           tokenStore.clearTokens();
         }
       }

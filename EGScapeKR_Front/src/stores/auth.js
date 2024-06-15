@@ -21,7 +21,7 @@ export const useTokenStore = defineStore('auth', {
       Cookies.remove('refreshToken');
     },
     setNickname(nickname) {
-        this.nickname = nickname; // Replace with actual logic to fetch user nickname
+        this.nickname = nickname;
       },
       clearNickname() {
         this.nickname = '';

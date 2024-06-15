@@ -38,4 +38,9 @@ public class UserService {
     public User findByUsername(String username){
         return userRepository.findByUsername(username);
     }
+
+    public Boolean verifyPass(String username, String password){
+        User user = userRepository.findByUsername(username);
+        return bCryptPasswordEncoder.matches(password, user.getPassword());
+    }
 }

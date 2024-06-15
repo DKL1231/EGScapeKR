@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/user/LoginView.vue'
 import SignupView from '@/views/user/SignupView.vue'
 import MypageView from '@/views/user/MyPageView.vue'
+import { useTokenStore } from '@/stores/auth'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -33,6 +35,14 @@ const router = createRouter({
       path: '/mypage',
       name: 'mypage',
       component: MypageView,
+      beforeEnter: (to, from, next) => {
+        const tokenStore = useTokenStore();
+        if(tokenStore.accessToken){
+          next();
+        }else{
+          next('/login');
+        }
+      }
     }
   ]
 })
