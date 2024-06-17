@@ -43,4 +43,22 @@ public class UserService {
         User user = userRepository.findByUsername(username);
         return bCryptPasswordEncoder.matches(password, user.getPassword());
     }
+
+    public void nicknameChange(String username, String newNickname){
+        User user = userRepository.findByUsername(username);
+        user.setNickname(newNickname);
+        userRepository.save(user);
+    }
+
+    public void passwordChange(String username, String newPassword){
+        User user = userRepository.findByUsername(username);
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void emailChange(String username, String newEmail){
+        User user = userRepository.findByUsername(username);
+        user.setEmail(newEmail);
+        userRepository.save(user);
+    }
 }

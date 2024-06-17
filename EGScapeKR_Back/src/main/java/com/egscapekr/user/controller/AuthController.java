@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextException;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,9 +29,18 @@ public class AuthController {
     @PostMapping("/refresh")
     public String refreshAuthenticationToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = getRefreshToken(request);
-
         if(jwtUtil.isTokenExpired(refreshToken, false)){
             logger.error("refresh token expired or Invalid");
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                    .httpOnly(true)
+                    //.secure(true) // HTTPS를 사용하는 경우 true로 설정
+                    .path("/")
+                    .maxAge(0) // 쿠키 즉시 만료
+                    .sameSite("Strict") // 또는 "Lax" 혹은 "None"으로 설정
+                    .build();
+
+            // 응답에 쿠키 추가
+            response.addHeader("Set-Cookie", cookie.toString());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return null;
         }
@@ -66,7 +76,7 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("RefreshToken".equals(cookie.getName())) {
+                if ("refreshToken".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }

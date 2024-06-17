@@ -47,7 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorizationHeader.split(" ")[1];
         if(jwtUtil.isTokenExpired(token, true)){
             logger.error("Access token expired or Invalid");
-
+            response.setStatus(401);
             filterChain.doFilter(request, response);
             return;
         }

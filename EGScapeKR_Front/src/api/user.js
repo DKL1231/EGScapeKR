@@ -1,6 +1,5 @@
 import myaxios from "@/utils/axios-common.js";
 import { useTokenStore } from "@/stores/auth";
-import Cookies from "js-cookie";
 
 // 로그인을 진행하고 토큰을 저장하는 함수
 function login(username, password, success, fail) {
@@ -14,9 +13,9 @@ function login(username, password, success, fail) {
       // JWT 토큰을 응답 헤더에서 가져오기
       const token = response.headers['authorization'];
       if (token) {
-        tokenStore.setTokens(token, Cookies.get('refreshToken'));
+        tokenStore.setTokens(token);
       }
-      getUserName(null);
+      getUserData(null);
       // 성공 콜백 호출
       success(response);
     }
@@ -82,13 +81,17 @@ function resetPassword(username, email, success, fail) {
       .catch(fail)
 }
 
-// 헤더에 닉네임을 표시할 때 사용하는 함수
-function getUserName(fail){
+// 유저 정보를 가져오는 함수
+function getUserData(fail){
   const authStore = useTokenStore();
   myaxios
-  .post(`/user/getnickname`)
+  .post(`/user/getuserdata`)
   .then((data)=>{
-    authStore.setNickname(data.data);
+    const userdata = data.data;
+    console.log(userdata);
+    authStore.setNickname(userdata.nickname);
+    authStore.setUserId(userdata.username);
+    authStore.setUserEmail(userdata.email);
   })
   .catch(fail)
 }
@@ -101,5 +104,18 @@ function verifyPass(password, success, fail){
   .catch(fail)
 }
 
+// 마이페이지에서 유저의 정보를 변경하는 함수
+function updateUserDetails(newNickname, success, fail){
+  myaxios
+  .post(`/user/updatenickname`, {nickname:newNickname})
+  .then(success)
+  .catch(fail);
+}
 
-export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserName, verifyPass };
+// 마이페이지에서 유저의 비밀번호를 변경하는 함수
+function changePassword(){}
+
+// 마이페이지에서 이메일을 변경하는 함수
+function changeEmail(){}
+
+export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserData, verifyPass, updateUserDetails, changePassword, changeEmail };

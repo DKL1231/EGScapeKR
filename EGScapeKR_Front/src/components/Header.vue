@@ -2,7 +2,7 @@
 import { computed, onMounted } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useTokenStore } from '../stores/auth';
-import { getUserName } from '@/api/user';
+import { getUserData } from '@/api/user';
 
 const tokenStore = useTokenStore();
 const router = useRouter();
@@ -11,13 +11,13 @@ const nickname = computed(() => tokenStore.nickname);
 
 const logout = () => {
   tokenStore.clearTokens();
-  tokenStore.clearNickname();
+  tokenStore.clearData();
   router.push('/login');
 };
 
 onMounted(() => {
   if (tokenStore.accessToken) {
-    getUserName((error)=>{
+    getUserData((error)=>{
       console.log(error);
     })
   }

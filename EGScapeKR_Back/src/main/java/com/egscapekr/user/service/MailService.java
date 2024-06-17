@@ -57,7 +57,7 @@ public class MailService {
         String tempCode = getTemporaryPass();
         mailDTO.setMessage("ErogameScape-KR 이메일 인증코드 관련 이메일입니다.\n"
                 +"회원님의 인증코드는 "+tempCode+" 입니다.\n"
-                +"복사 후 인증번호 칸에 기입한 뒤 회원가입을 진행해주시기 바랍니다."
+                +"복사 후 인증번호 칸에 기입한 뒤 진행해주시기 바랍니다."
                 +"코드 유효시간은 1시간입니다."
         );
         user.setVerifyCode(tempCode);

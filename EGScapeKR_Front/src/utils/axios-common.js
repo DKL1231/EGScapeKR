@@ -2,6 +2,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/apiConfig';
 import { useTokenStore } from '../stores/auth';
 import { storeToRefs } from 'pinia';
+import Cookies from 'js-cookie';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -34,21 +35,17 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const tokenStore = useTokenStore();
-      const { refreshToken } = storeToRefs(tokenStore);
-      console.log(refreshToken.value);
-      if (refreshToken.value) {
         try {
-          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken: refreshToken.value });
+          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
           tokenStore.setTokens(data.accessToken, Cookies.get('refreshToken'));
           originalRequest.headers['Authorization'] = `${data.accessToken}`;
           return axios(originalRequest);
         } catch (e) {
           console.error('Refresh token failed', e);
           alert("로그인이 만료되었습니다.");
+          const tokenStore = useTokenStore();
           tokenStore.clearTokens();
         }
-      }
     }
     return Promise.reject(error);
   }
