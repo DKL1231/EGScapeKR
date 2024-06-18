@@ -88,7 +88,6 @@ function getUserData(fail){
   .post(`/user/getuserdata`)
   .then((data)=>{
     const userdata = data.data;
-    console.log(userdata);
     authStore.setNickname(userdata.nickname);
     authStore.setUserId(userdata.username);
     authStore.setUserEmail(userdata.email);
@@ -115,7 +114,20 @@ function updateUserDetails(newNickname, success, fail){
 // 마이페이지에서 유저의 비밀번호를 변경하는 함수
 function changePassword(){}
 
-// 마이페이지에서 이메일을 변경하는 함수
-function changeEmail(){}
+// 마이페이지에서 인증 메일을 발송하는 함수
+function mypageVerifyCode(email, success, fail){
+  myaxios
+  .post(`/user/sendmail`, {email: email})
+  .then(success)
+  .catch(fail);
+}
 
-export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserData, verifyPass, updateUserDetails, changePassword, changeEmail };
+// 마이페이지에서 이메일을 변경하는 함수
+function changeEmail(newEmail, verifyCode, success, fail){
+  myaxios
+  .post(`/user/updateemail`, {email: newEmail, verifyCode: verifyCode})
+  .then(success)
+  .catch(fail);
+}
+
+export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserData, verifyPass, updateUserDetails, changePassword, mypageVerifyCode, changeEmail };

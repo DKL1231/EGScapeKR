@@ -16,7 +16,6 @@ const passCheck = ref(false);
 const router = useRouter();
 
 watch([password, passwordCheck], ([a, b], [c, d]) => {
-  console.log(password.value);
   if (password.value == passwordCheck.value && password.value.length > 5) {
     checkpasstext.value = "비밀번호가 동일합니다.";
     passCheck.value = true;
@@ -93,9 +92,9 @@ function submit(){
   signup(id.value, password.value, userName.value, email.value, verifyCode.value,
     (success)=>{
       if(window.confirm("회원가입을 성공했습니다. 로그인화면으로 이동합니다.")){
-        router.push("/");
+        router.push("/login");
       }else{
-        router.push("/");
+        router.push("/login");
       }
     },
     (fail)=>{

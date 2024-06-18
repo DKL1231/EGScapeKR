@@ -1,12 +1,14 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useTokenStore } from "@/stores/auth";
+import * as bootstrap from "bootstrap";
 import {
   verifyPass,
   updateUserDetails,
   changePassword,
   changeEmail,
-  getVerifyCode,
+  mypageVerifyCode,
   getUserData,
 } from "@/api/user";
 
@@ -32,6 +34,21 @@ onMounted(()=>{
   }, 1000);
   
 })
+
+function showModal(modalId) {
+  const modal = new bootstrap.Modal(document.getElementById(modalId));
+  modal.show();
+}
+
+function hideModal(modalId) {
+  const modalElement = document.getElementById(modalId);
+  const modalInstance = bootstrap.Modal.getInstance(modalElement);
+  if (modalInstance) {
+    modalInstance.hide();
+  }
+}
+
+
 
 function verifyPassword() {
   verifyPass(
@@ -84,41 +101,57 @@ function updatePassword() {
 }
 
 function sendVerificationCode() {
-  getVerifyCode(
+  document.getElementById("userId").setAttribute("disabled", "disabled");
+  showModal("loadingModal");
+  mypageVerifyCode(
     newEmail.value,
     (data) => {
-      alert("인증코드가 발송되었습니다.");
-      verifyModalVisible.value = true;
+      hideModal("loadingModal");
+      setTimeout(() => {
+        alert("인증코드가 발송되었습니다.");
+        verifyModalVisible.value = true;  
+      }, 500);
     },
     (error) => {
-      alert("인증코드 발송 중 오류가 발생했습니다.");
+      document.getElementById("userId").removeAttribute("disabled");
+      setTimeout(()=>{
+        if(error.response.status === 409){
+          hideModal("loadingModal");
+          setTimeout(()=>{
+          alert("이미 사용중인 이메일 주소입니다.");
+          }, 300);
+        }
+        else{
+          hideModal("loadingModal");
+          setTimeout(()=>{
+          alert("인증코드 발송 중 오류가 발생했습니다.");
+          }, 300);
+        }
+      }, 500);
+      
     }
   );
 }
 
 function verifyEmailCode() {
-  // 여기에 인증코드를 검증하는 로직을 추가하세요.
-  // 인증이 성공하면 updateEmail을 호출하도록 할 수 있습니다.
-  // 예시:
-  // if (verifyCode.value === 'expectedCode') {
-  //     updateEmail();
-  // } else {
-  //     alert('인증코드가 올바르지 않습니다.');
-  // }
-
-  // 임시로 updateEmail을 바로 호출하는 예시
-  updateEmail();
-  verifyModalVisible.value = false;
-}
-
-function updateEmail() {
-  changeEmail(
-    { newEmail: newEmail.value },
-    (data) => {
-      alert("이메일이 변경되었습니다.");
+  changeEmail(newEmail.value, verifyCode.value,
+    (data)=>{
+      authStore.setUserEmail = newEmail.value;
+      email.value = newEmail.value;
+      setTimeout(() => {
+        verifyModalVisible.value = false;
+        setTimeout(() => {
+          alert("이메일 주소 변경을 완료했습니다.");
+        }, 300);
+      }, 500);
     },
-    (error) => {
-      alert("이메일 변경 중 오류가 발생했습니다.");
+    (error)=>{
+      
+      if(error.response.status === 409)
+        alert("인증코드를 다시 확인해 주시기 바랍니다.");
+      else{
+        alert("이메일을 변경하던 중 오류가 발생했습니다.");
+      }
     }
   );
 }
@@ -318,6 +351,7 @@ function updateEmail() {
   <!-- 인증코드 입력 Modal -->
   <div
     v-if="verifyModalVisible"
+    id="verifyModal"
     class="modal show"
     tabindex="-1"
     style="display: block"
@@ -357,8 +391,7 @@ function updateEmail() {
             type="button"
             class="btn btn-primary"
             @click="
-              verifyEmail;
-              Code;
+              verifyEmailCode
             "
           >
             확인
@@ -367,6 +400,24 @@ function updateEmail() {
       </div>
     </div>
   </div>
+
+  <!-- Loading Modal -->
+  <div
+      class="modal fade"
+      id="loadingModal"
+      tabindex="-1"
+      aria-labelledby="loadingModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loadingModalLabel">로딩 중</h5>
+          </div>
+          <div class="modal-body">처리 중입니다. 잠시만 기다려 주세요...</div>
+        </div>
+      </div>
+    </div>
 </template>
 
 <style scoped>
