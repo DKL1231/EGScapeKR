@@ -90,7 +90,7 @@ function updatePassword() {
     return;
   }
   changePassword(
-    { newPassword: newPassword.value },
+    newPassword.value,
     (data) => {
       alert("비밀번호가 변경되었습니다.");
     },

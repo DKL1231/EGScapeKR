@@ -112,7 +112,12 @@ function updateUserDetails(newNickname, success, fail){
 }
 
 // 마이페이지에서 유저의 비밀번호를 변경하는 함수
-function changePassword(){}
+function changePassword(newPw, success, fail){
+  myaxios
+  .post(`/user/updatepassword`, {password: newPw})
+  .then(success)
+  .catch(fail)
+}
 
 // 마이페이지에서 인증 메일을 발송하는 함수
 function mypageVerifyCode(email, success, fail){
