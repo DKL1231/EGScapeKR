@@ -15,6 +15,8 @@ public class RefreshToken {
     @Id
     private String username;
     private String role;
+
+    @Indexed
     private String refreshToken;
 
     @Indexed

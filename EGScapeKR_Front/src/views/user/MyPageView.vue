@@ -9,13 +9,14 @@ import {
   changePassword,
   changeEmail,
   mypageVerifyCode,
-  getUserData,
+  deleteUserAccount
 } from "@/api/user";
 
 const authStore = useTokenStore();
 
 const password = ref("");
 const isVerified = ref(false);
+const router = useRouter();
 
 const userId = ref("")
 const nickname = ref("")
@@ -155,6 +156,32 @@ function verifyEmailCode() {
     }
   );
 }
+
+function deleteUser() {
+  const userPassword = prompt("비밀번호를 입력해주세요:");
+
+  if (userPassword) {
+    verifyPass(
+      userPassword,
+      (data) => {
+        deleteUserAccount(
+          (response) => {
+            alert("회원탈퇴가 완료되었습니다.");
+            authStore.clearData();
+            router.push("/"); // 회원탈퇴 후 메인 페이지로 이동
+          },
+          (error) => {
+            alert("회원탈퇴 중 오류가 발생했습니다.");
+          }
+        );
+      },
+      (error) => {
+        alert("비밀번호가 올바르지 않습니다. 다시 시도해 주세요.");
+      }
+    );
+  }
+}
+
 </script>
 
 <template>
@@ -225,6 +252,20 @@ function verifyEmailCode() {
                 aria-selected="false"
               >
                 이메일 변경
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="delete-account-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#deleteAccountTab"
+                type="button"
+                role="tab"
+                aria-controls="deleteAccount"
+                aria-selected="false"
+              >
+                회원탈퇴
               </button>
             </li>
           </ul>
@@ -341,6 +382,19 @@ function verifyEmailCode() {
                   </button>
                 </div>
               </form>
+            </div>
+            <div
+              class="tab-pane fade"
+              id="deleteAccountTab"
+              role="tabpanel"
+              aria-labelledby="delete-account-tab"
+            >
+              <div class="mt-4">
+                <p>회원탈퇴를 진행하려면 비밀번호를 입력해주세요.</p>
+                <button class="btn btn-danger" @click="deleteUser">
+                  회원탈퇴
+                </button>
+              </div>
             </div>
           </div>
         </div>

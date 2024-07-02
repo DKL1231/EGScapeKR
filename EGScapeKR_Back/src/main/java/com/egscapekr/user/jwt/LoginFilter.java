@@ -39,6 +39,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
+
         String username = obtainUsername(req);
         String pwd = obtainPassword(req);
         if(username == null || pwd == null) {

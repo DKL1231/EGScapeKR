@@ -33,6 +33,8 @@ apiClient.interceptors.response.use(
   },
   async error => {
     const originalRequest = error.config;
+    const aToken = useTokenStore().accessToken;
+    if(aToken === '') return;
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
         try {
@@ -44,7 +46,7 @@ apiClient.interceptors.response.use(
           console.error('Refresh token failed', e);
           alert("로그인이 만료되었습니다.");
           const tokenStore = useTokenStore();
-          tokenStore.clearTokens();
+          //tokenStore.clearTokens();
         }
     }
     return Promise.reject(error);

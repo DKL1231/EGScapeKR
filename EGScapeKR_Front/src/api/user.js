@@ -4,6 +4,7 @@ import { useTokenStore } from "@/stores/auth";
 // 로그인을 진행하고 토큰을 저장하는 함수
 function login(username, password, success, fail) {
   const tokenStore = useTokenStore();
+  tokenStore.clearTokens();
   myaxios
     .post(`/login`, {
       username: username,
@@ -135,4 +136,12 @@ function changeEmail(newEmail, verifyCode, success, fail){
   .catch(fail);
 }
 
-export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserData, verifyPass, updateUserDetails, changePassword, mypageVerifyCode, changeEmail };
+// 회원탈퇴를 진행하는 함수
+function deleteUserAccount(success, fail){
+  myaxios
+  .post(`/user/withdraw`)
+  .then(success)
+  .catch(fail);
+}
+
+export { login, signup, getVerifyCode, resetPassword, unameDupCheck, emailDupCheck, getUserData, verifyPass, updateUserDetails, changePassword, mypageVerifyCode, changeEmail, deleteUserAccount };

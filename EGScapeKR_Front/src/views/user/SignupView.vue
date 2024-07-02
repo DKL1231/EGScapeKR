@@ -51,6 +51,7 @@ function mailDupCheck(){
   }
   emailDupCheck(email.value,
     (success)=>{
+      console.log(success)
       if(window.confirm("사용 가능한 이메일입니다. 인증 메일을 보내시겠습니까?")){
         document.getElementById("floatingEmail").setAttribute("disabled", "disabled");
         document.getElementById("emailDupCheckBtn").setAttribute("disabled", "disabled");

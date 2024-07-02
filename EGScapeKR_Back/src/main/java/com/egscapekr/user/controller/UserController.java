@@ -161,4 +161,12 @@ public class UserController {
         }
         return false;
     }
+
+    @PostMapping("/withdraw")
+    public String withdraw(HttpServletRequest req, HttpServletResponse res) {
+        String accessToken = req.getHeader("Authorization").split(" ")[1];
+        userService.withdrawal(jwtUtil.getUsernameFromToken(accessToken));
+        res.setStatus(HttpServletResponse.SC_OK);
+        return "withdraw complete";
+    }
 }

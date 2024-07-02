@@ -61,4 +61,9 @@ public class UserService {
         user.setEmail(newEmail);
         userRepository.save(user);
     }
+
+    public void withdrawal(String username){
+        User user = userRepository.findByUsername(username);
+        userRepository.delete(user);
+    }
 }
