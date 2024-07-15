@@ -63,7 +63,7 @@ public class UserController {
         return "unduplicated email";
     }
 
-    @PostMapping("/resetpw")
+    @PatchMapping("/resetpw")
     public String resetPassword(HttpServletResponse res, @RequestBody UserDTO userDTO) {
         if(userService.isExistData(userDTO)){
             MailDTO mailDTO = mailService.createResetMail(userDTO);
@@ -92,7 +92,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/updatenickname")
+    @PatchMapping("/updatenickname")
     public String updateNickname(HttpServletRequest req, HttpServletResponse res, @RequestBody UserDTO userDTO) {
         String accessToken = req.getHeader("Authorization").split(" ")[1];
         try{
@@ -104,7 +104,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/updatepassword")
+    @PatchMapping("/updatepassword")
     public String updatePassword(HttpServletRequest req, HttpServletResponse res, @RequestBody UserDTO userDTO) {
         String accessToken = req.getHeader("Authorization").split(" ")[1];
         try{
@@ -132,7 +132,7 @@ public class UserController {
         return "mail verified";
     }
 
-    @PostMapping("/updateemail")
+    @PatchMapping("/updateemail")
     public String updateEmail(HttpServletRequest req, HttpServletResponse res, @RequestBody UserDTO userDTO) {
         String accessToken = req.getHeader("Authorization").split(" ")[1];
         try{
@@ -162,7 +162,7 @@ public class UserController {
         return false;
     }
 
-    @PostMapping("/withdraw")
+    @DeleteMapping("/withdraw")
     public String withdraw(HttpServletRequest req, HttpServletResponse res) {
         String accessToken = req.getHeader("Authorization").split(" ")[1];
         userService.withdrawal(jwtUtil.getUsernameFromToken(accessToken));

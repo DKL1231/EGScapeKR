@@ -74,7 +74,7 @@ function resetPassword(username, email, success, fail) {
     console.log(username)
     console.log(email)
     myaxios
-      .post(`/user/resetpw`, {
+      .patch(`/user/resetpw`, {
         "username": username,
         "email": email
       })
@@ -107,7 +107,7 @@ function verifyPass(password, success, fail){
 // 마이페이지에서 유저의 정보를 변경하는 함수
 function updateUserDetails(newNickname, success, fail){
   myaxios
-  .post(`/user/updatenickname`, {nickname:newNickname})
+  .patch(`/user/updatenickname`, {nickname:newNickname})
   .then(success)
   .catch(fail);
 }
@@ -115,7 +115,7 @@ function updateUserDetails(newNickname, success, fail){
 // 마이페이지에서 유저의 비밀번호를 변경하는 함수
 function changePassword(newPw, success, fail){
   myaxios
-  .post(`/user/updatepassword`, {password: newPw})
+  .patch(`/user/updatepassword`, {password: newPw})
   .then(success)
   .catch(fail)
 }
@@ -131,7 +131,7 @@ function mypageVerifyCode(email, success, fail){
 // 마이페이지에서 이메일을 변경하는 함수
 function changeEmail(newEmail, verifyCode, success, fail){
   myaxios
-  .post(`/user/updateemail`, {email: newEmail, verifyCode: verifyCode})
+  .patch(`/user/updateemail`, {email: newEmail, verifyCode: verifyCode})
   .then(success)
   .catch(fail);
 }
@@ -139,7 +139,7 @@ function changeEmail(newEmail, verifyCode, success, fail){
 // 회원탈퇴를 진행하는 함수
 function deleteUserAccount(success, fail){
   myaxios
-  .post(`/user/withdraw`)
+  .delete(`/user/withdraw`)
   .then(success)
   .catch(fail);
 }

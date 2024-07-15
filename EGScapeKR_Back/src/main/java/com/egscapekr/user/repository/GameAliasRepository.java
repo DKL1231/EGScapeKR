@@ -12,4 +12,7 @@ import java.util.List;
 public interface GameAliasRepository extends JpaRepository<GameAlias, Integer> {
     @Query("select g from GameAlias g where g.GameId = :gameId")
     List<GameAlias> findByGameId(@Param("gameId") int gameId);
+
+    @Query("select g from GameAlias g where g.GameAliasName LIKE :gameAlias")
+    List<GameAlias> findByGameAliasName(@Param("gameAlias") String gameAlias);
 }
