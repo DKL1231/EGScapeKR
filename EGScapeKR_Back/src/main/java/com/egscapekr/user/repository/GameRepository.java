@@ -13,5 +13,5 @@ import java.util.Set;
 public interface GameRepository extends JpaRepository<Game, Integer> {
 
     @Query("SELECT g FROM Game g WHERE g.id IN :ids")
-    public List<Game> findGamesByIds(@Param("ids") Set<Integer> ids);
+    public List<Game> findGamesByIds(@Param("ids") List<Integer> ids);
 }

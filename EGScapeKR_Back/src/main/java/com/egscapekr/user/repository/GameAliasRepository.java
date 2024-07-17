@@ -13,6 +13,6 @@ public interface GameAliasRepository extends JpaRepository<GameAlias, Integer> {
     @Query("select g from GameAlias g where g.GameId = :gameId")
     List<GameAlias> findByGameId(@Param("gameId") int gameId);
 
-    @Query("select g from GameAlias g where g.GameAliasName LIKE :gameAlias")
-    List<GameAlias> findByGameAliasName(@Param("gameAlias") String gameAlias);
+    @Query("select distinct(g.GameId) from GameAlias g where g.GameAliasName LIKE :gameAlias")
+    List<Integer> findByGameAliasName(@Param("gameAlias") String gameAlias);
 }

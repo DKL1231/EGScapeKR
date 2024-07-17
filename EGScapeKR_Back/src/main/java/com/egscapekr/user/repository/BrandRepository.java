@@ -14,5 +14,5 @@ import java.util.Set;
 public interface BrandRepository extends JpaRepository<Brand, Integer> {
 
     @Query("SELECT b FROM Brand b WHERE b.id IN :ids")
-    public List<Brand> findBrandsByIds(@Param("ids") Set<Integer> ids);
+    public List<Brand> findBrandsByIds(@Param("ids") List<Integer> ids);
 }

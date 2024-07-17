@@ -23,7 +23,7 @@ public class BrandService {
         keyword = KeywordProcess(keyword);
         List<Integer> BrandIds = brandAliasRepository.findByBrandAliasName(keyword);
 
-        return brandRepository.findAllById(BrandIds);
+        return brandRepository.findBrandsByIds(BrandIds);
     }
 
     private String KeywordProcess(String keyword) {

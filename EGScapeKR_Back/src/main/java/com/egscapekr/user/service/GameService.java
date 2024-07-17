@@ -20,11 +20,7 @@ public class GameService {
 
     public List<Game> Search(String keyword) {
         keyword = KeywordProcess(keyword);
-        List<GameAlias> gameAliases = gameAliasRepository.findByGameAliasName(keyword);
-        Set<Integer> gameIds = new HashSet<>();
-        for (GameAlias gameAlias : gameAliases) {
-            gameIds.add(gameAlias.getGameId());
-        }
+        List<Integer> gameIds = gameAliasRepository.findByGameAliasName(keyword);
         return gameRepository.findGamesByIds(gameIds);
     }
 
