@@ -1,7 +1,6 @@
 package com.egscapekr.user.service;
 
 import com.egscapekr.user.entity.Game;
-import com.egscapekr.user.entity.GameAlias;
 import com.egscapekr.user.repository.GameAliasRepository;
 import com.egscapekr.user.repository.GameRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class GameService {
     public List<Game> Search(String keyword) {
         keyword = KeywordProcess(keyword);
         List<Integer> gameIds = gameAliasRepository.findByGameAliasName(keyword);
-        return gameRepository.findGamesByIds(gameIds);
+        return gameRepository.findGamesByIdsWithBrand(gameIds);
     }
 
     private String KeywordProcess(String keyword) {

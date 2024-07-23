@@ -10,9 +10,9 @@ import java.util.List;
 
 @Repository
 public interface GameAliasRepository extends JpaRepository<GameAlias, Integer> {
-    @Query("select g from GameAlias g where g.GameId = :gameId")
+    @Query("SELECT g FROM GameAlias g WHERE g.game.gameId = :gameId")
     List<GameAlias> findByGameId(@Param("gameId") int gameId);
 
-    @Query("select distinct(g.GameId) from GameAlias g where g.GameAliasName LIKE :gameAlias")
+    @Query("SELECT DISTINCT(g.game.gameId) FROM GameAlias g WHERE g.gameAliasName LIKE :gameAlias")
     List<Integer> findByGameAliasName(@Param("gameAlias") String gameAlias);
 }

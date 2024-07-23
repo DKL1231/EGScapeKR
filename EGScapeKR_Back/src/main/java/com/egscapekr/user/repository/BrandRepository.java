@@ -8,11 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Integer> {
 
     @Query("SELECT b FROM Brand b WHERE b.id IN :ids")
-    public List<Brand> findBrandsByIds(@Param("ids") List<Integer> ids);
+    List<Brand> findBrandsByIds(@Param("ids") List<Integer> ids);
+
+    @Query("SELECT g FROM Game g WHERE g.brand.brandId = :brandId")
+    List<Game> findGamesByBrandId(@Param("brandId") int brandId);
 }

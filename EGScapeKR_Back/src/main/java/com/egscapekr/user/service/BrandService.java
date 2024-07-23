@@ -21,9 +21,12 @@ public class BrandService {
 
     public List<Brand> Search(String keyword) {
         keyword = KeywordProcess(keyword);
-        List<Integer> BrandIds = brandAliasRepository.findByBrandAliasName(keyword);
+        List<Integer> brandIds = brandAliasRepository.findByBrandAliasName(keyword);
 
-        return brandRepository.findBrandsByIds(BrandIds);
+        List<Brand> brands = brandRepository.findBrandsByIds(brandIds);
+        // 게임 리스트를 브랜드와 함께 로드하도록 설정
+        brands.forEach(brand -> brand.setGames(brandRepository.findGamesByBrandId(brand.getBrandId())));
+        return brands;
     }
 
     private String KeywordProcess(String keyword) {

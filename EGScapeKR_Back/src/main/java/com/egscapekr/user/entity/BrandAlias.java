@@ -1,8 +1,6 @@
 package com.egscapekr.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +9,11 @@ import lombok.Setter;
 @Setter
 public class BrandAlias {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int brandAliasId;
-    private int brandId;
-    private String alias;
+    private String BrandAliasName;
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
 }

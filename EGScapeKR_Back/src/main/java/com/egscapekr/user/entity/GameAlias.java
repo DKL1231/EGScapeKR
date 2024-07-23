@@ -1,9 +1,7 @@
 package com.egscapekr.user.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,8 +10,12 @@ import lombok.Setter;
 @Setter
 public class GameAlias {
     @Id
-    @GeneratedValue
-    private int GameAliasId;
-    private int GameId;
-    private String GameAliasName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int gameAliasId;
+
+    private String gameAliasName;
+
+    @ManyToOne
+    @JoinColumn(name = "game_id", nullable = false)
+    private Game game;
 }

@@ -1,12 +1,11 @@
 package com.egscapekr.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,13 +13,14 @@ import java.sql.Timestamp;
 public class Game {
 
     @Id
-    @GeneratedValue
-    private int gameId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    private int gameId;
+
     private String gameNameOrigin; // 게임명 원본
     private String gameNameTrans; // 게임명 대표번역
     private Timestamp sellDay; // 판매개시일
-    private Integer brandId; // 브랜드명
     private Integer median; // 점수, 하루한번 계산
     private Integer count; // 획득표수, 하루한번 계산
     private Integer eroscapeMedian; // 에로스케 점수
@@ -33,4 +33,11 @@ public class Game {
     private String genre; // 장르
     private String twitter; // 트위터 아이디
     private String vndb; // vndb아이디
+
+    @ManyToOne
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
+
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GameAlias> aliases;
 }

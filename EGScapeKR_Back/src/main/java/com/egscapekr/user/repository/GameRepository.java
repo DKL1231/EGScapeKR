@@ -7,11 +7,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Integer> {
 
-    @Query("SELECT g FROM Game g WHERE g.id IN :ids")
-    public List<Game> findGamesByIds(@Param("ids") List<Integer> ids);
+    @Query("SELECT g FROM Game g JOIN FETCH g.brand WHERE g.id IN :ids")
+    List<Game> findGamesByIdsWithBrand(@Param("ids") List<Integer> ids);
 }
