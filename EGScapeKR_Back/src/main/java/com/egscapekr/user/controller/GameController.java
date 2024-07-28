@@ -1,14 +1,15 @@
 package com.egscapekr.user.controller;
 
+import com.egscapekr.user.dto.GameDTO;
+import com.egscapekr.user.dto.GameScoreDTO;
 import com.egscapekr.user.entity.Game;
+import com.egscapekr.user.jwt.JWTUtil;
 import com.egscapekr.user.service.GameService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,9 +21,11 @@ public class GameController {
     // /game/~~ : Link format allowed only by logged-in users
 
     private final GameService gameService;
+    private final JWTUtil jwtUtil;
 
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, JWTUtil jwtUtil) {
         this.gameService = gameService;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -34,4 +37,16 @@ public class GameController {
         return new ResponseEntity<>(games, HttpStatus.OK);
     }
 
+    @GetMapping("/about/detail/{gameId}")
+    public ResponseEntity<Game> GetGameDetail(@PathVariable long gameId) {
+        // TODO: 게임 상세정보 가져오기.
+        return null;
+    }
+
+    @PostMapping("/vote")
+    public ResponseEntity<String> VoteScore(HttpServletRequest req, @RequestBody GameScoreDTO gameScoreDTO) {
+        String accessToken = req.getHeader("Authorization").split(" ")[1];
+        gameService.addScore(jwtUtil.getUsernameFromToken(accessToken), gameScoreDTO);
+        return new ResponseEntity<String>("vote score success", HttpStatus.OK);
+    }
 }

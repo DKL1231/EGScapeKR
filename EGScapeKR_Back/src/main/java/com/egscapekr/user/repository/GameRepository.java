@@ -13,4 +13,6 @@ public interface GameRepository extends JpaRepository<Game, Integer> {
 
     @Query("SELECT g FROM Game g JOIN FETCH g.brand WHERE g.id IN :ids")
     List<Game> findGamesByIdsWithBrand(@Param("ids") List<Integer> ids);
+
+    Game findGameByGameId(int gameId);
 }

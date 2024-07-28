@@ -30,13 +30,6 @@ public class BrandService {
     }
 
     private String KeywordProcess(String keyword) {
-        StringBuilder sb = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(keyword, " ");
-        sb.append("%");
-        while (st.hasMoreTokens()) {
-            sb.append(st.nextToken());
-            sb.append("%");
-        }
-        return sb.toString();
+        return GameService.getString(keyword);
     }
 }
