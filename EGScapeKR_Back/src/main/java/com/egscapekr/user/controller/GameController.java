@@ -1,6 +1,7 @@
 package com.egscapekr.user.controller;
 
 import com.egscapekr.user.dto.GameDTO;
+import com.egscapekr.user.dto.GameDetailDTO;
 import com.egscapekr.user.dto.GameScoreDTO;
 import com.egscapekr.user.entity.Game;
 import com.egscapekr.user.jwt.JWTUtil;
@@ -38,9 +39,8 @@ public class GameController {
     }
 
     @GetMapping("/about/detail/{gameId}")
-    public ResponseEntity<Game> GetGameDetail(@PathVariable long gameId) {
-        // TODO: 게임 상세정보 가져오기.
-        return null;
+    public ResponseEntity<GameDetailDTO> GetGameDetail(@PathVariable int gameId) {
+        return new ResponseEntity<>(gameService.getGameDetail(gameId), HttpStatus.OK);
     }
 
     @PostMapping("/vote")
