@@ -19,11 +19,11 @@ public class GameAliasVote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="discussGameAliasId", nullable=false)
     private DiscussGameAlias discussGameAlias;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="username", nullable = false)
     private User user;
 
