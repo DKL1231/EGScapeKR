@@ -1,6 +1,7 @@
 package com.egscapekr.user.controller;
 
 import com.egscapekr.user.dto.DiscussGameAliasReqDTO;
+import com.egscapekr.user.dto.DiscussGameCreateReqDTO;
 import com.egscapekr.user.dto.VoteDTO;
 import com.egscapekr.user.jwt.JWTUtil;
 import com.egscapekr.user.service.DiscussGameService;
@@ -40,6 +41,18 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
             return new ResponseEntity<>("Duplicate Alias", HttpStatus.CONFLICT);
         }
 
+        return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
+    }
+
+    @PostMapping("/create/create/game")
+    public ResponseEntity<String> createGameCreateDiscuss(HttpServletRequest req, DiscussGameCreateReqDTO discussGameCreateReqDTO){
+        String username = getUsernameFromAccessToken(req);
+        discussGameCreateReqDTO.setUsername(username);
+        try{
+            discussGameService.createGameCreateDiscuss(discussGameCreateReqDTO);
+        }catch(DuplicateKeyException e){
+            return new ResponseEntity<>("Duplicate Game or No erogescape Id", HttpStatus.CONFLICT);
+        }
         return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
     }
 

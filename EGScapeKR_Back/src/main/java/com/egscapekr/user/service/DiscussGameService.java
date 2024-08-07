@@ -1,11 +1,9 @@
 package com.egscapekr.user.service;
 
 import com.egscapekr.user.dto.DiscussGameAliasReqDTO;
+import com.egscapekr.user.dto.DiscussGameCreateReqDTO;
 import com.egscapekr.user.dto.VoteDTO;
-import com.egscapekr.user.entity.DiscussGameAlias;
-import com.egscapekr.user.entity.GameAlias;
-import com.egscapekr.user.entity.GameAliasVote;
-import com.egscapekr.user.entity.User;
+import com.egscapekr.user.entity.*;
 import com.egscapekr.user.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,13 +15,15 @@ import java.util.List;
 public class DiscussGameService {
 
     private final DiscussGameAliasRepository discussGameAliasRepository;
+    private final DiscussGameCreateRepository discussGameCreateRepository;
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameAliasRepository gameAliasRepository;
     private final GameAliasVoteRepository gameAliasVoteRepository;
 
-    public DiscussGameService(DiscussGameAliasRepository discussGameAliasRepository, UserRepository userRepository, GameRepository gameRepository, GameAliasRepository gameAliasRepository, GameAliasVoteRepository gameAliasVoteRepository) {
+    public DiscussGameService(DiscussGameAliasRepository discussGameAliasRepository, DiscussGameCreateRepository discussGameCreateRepository, UserRepository userRepository, GameRepository gameRepository, GameAliasRepository gameAliasRepository, GameAliasVoteRepository gameAliasVoteRepository) {
         this.discussGameAliasRepository = discussGameAliasRepository;
+        this.discussGameCreateRepository = discussGameCreateRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameAliasRepository = gameAliasRepository;
@@ -52,6 +52,23 @@ public class DiscussGameService {
         }
         return false;
     }
+
+    public void createGameCreateDiscuss(DiscussGameCreateReqDTO discussGameCreateReqDTO){
+        if(isExistGame(discussGameCreateReqDTO)){
+            throw new DuplicateKeyException("중복된 게임이거나 erogescapeId가 존재하지 않습니다.");
+        }
+        DiscussGameCreate discussGameCreate = new DiscussGameCreate(discussGameCreateReqDTO);
+        discussGameCreate.setUser(userRepository.findByUsername(discussGameCreateReqDTO.getUsername()));
+        discussGameCreate.setDueTo(discussGameCreateReqDTO.getCreateAt().plusDays(15));
+
+        discussGameCreateRepository.save(discussGameCreate);
+    }
+
+    public boolean isExistGame(DiscussGameCreateReqDTO discussGameCreateReqDTO){
+        Game game = gameRepository.findGameByGameId(discussGameCreateReqDTO.getGameId());
+        return game != null;
+    }
+
 
     public void voteGameAliasDiscuss(VoteDTO voteDTO){
         // TODO : BusinessException 작성
