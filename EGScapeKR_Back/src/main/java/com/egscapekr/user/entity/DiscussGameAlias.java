@@ -23,12 +23,12 @@ public class DiscussGameAlias {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int discussGameAliasId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name="game_id", nullable=false)
     private Game game;
     private String gameAlias;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "username", nullable = false)
     private User user; // 토론을 생성한 유저의 username
 
