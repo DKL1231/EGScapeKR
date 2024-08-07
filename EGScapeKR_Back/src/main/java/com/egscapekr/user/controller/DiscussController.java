@@ -1,8 +1,9 @@
 package com.egscapekr.user.controller;
 
 import com.egscapekr.user.dto.DiscussGameAliasReqDTO;
+import com.egscapekr.user.dto.VoteDTO;
 import com.egscapekr.user.jwt.JWTUtil;
-import com.egscapekr.user.service.DiscussGameAliasService;
+import com.egscapekr.user.service.DiscussGameService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -18,23 +19,23 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 별명 추가에 대한 토론 생성
 
     private final JWTUtil jwtUtil;
-    private final DiscussGameAliasService discussGameAliasService;
+    private final DiscussGameService discussGameService;
 
-    public DiscussController(JWTUtil jwtUtil, DiscussGameAliasService discussGameAliasService) {
+    public DiscussController(JWTUtil jwtUtil, DiscussGameService discussGameService) {
         this.jwtUtil = jwtUtil;
-        this.discussGameAliasService = discussGameAliasService;
+        this.discussGameService = discussGameService;
     }
 
     private String getUsernameFromAccessToken(HttpServletRequest req){
         return jwtUtil.getUsernameFromToken(req.getHeader("Authorization").split(" ")[1]);
     }
 
-    @PostMapping("/create/game")
-    public ResponseEntity<String> createGameDiscuss(HttpServletRequest req, DiscussGameAliasReqDTO discussGameAliasReqDTO){
+    @PostMapping("/create/alias/game")
+    public ResponseEntity<String> createGameAliasDiscuss(HttpServletRequest req, DiscussGameAliasReqDTO discussGameAliasReqDTO){
         String username = getUsernameFromAccessToken(req);
         discussGameAliasReqDTO.setUsername(username);
         try {
-            discussGameAliasService.createGameDiscuss(discussGameAliasReqDTO);
+            discussGameService.createGameAliasDiscuss(discussGameAliasReqDTO);
         }catch(DuplicateKeyException e){
             return new ResponseEntity<>("Duplicate Alias", HttpStatus.CONFLICT);
         }
@@ -42,9 +43,20 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
         return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
     }
 
-    @PostMapping("/vote/game")
-    public ResponseEntity<String> voidGameDiscuss(HttpServletRequest req){
+    @PostMapping("/vote")
+    public ResponseEntity<String> voteDiscuss(HttpServletRequest req, VoteDTO voteDTO){
         // TODO : 특정 토론에 투표하는 로직 작성
-        return null;
+        String username = getUsernameFromAccessToken(req);
+        voteDTO.setUsername(username);
+
+        String voteType = voteDTO.getType();
+        try {
+            if (voteType.equals("GA")) {
+                discussGameService.voteGameAliasDiscuss(voteDTO);
+            }
+        }catch(Exception e){ // TODO: BusinessException 으로 수정
+            return new ResponseEntity<>("Vote Failed", HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>("Vote Success", HttpStatus.OK);
     }
 }

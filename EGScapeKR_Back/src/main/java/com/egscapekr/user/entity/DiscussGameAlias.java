@@ -14,21 +14,24 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"gameAlias", "game_id"})
+})
 public class DiscussGameAlias {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int discussGameAliasId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="game_id", nullable=false)
     private Game game;
     private String gameAlias;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "username", nullable = false)
     private User user; // 토론을 생성한 유저의 username
 
-    private int agree = 1; // 현재까지 찬성 수
+    private int agree = 0; // 현재까지 찬성 수
     private int disagree = 0; // 현재까지 반대 수
     private LocalDateTime createAt; // 투표 생성일
     private LocalDateTime dueTo; // 투표 마감일
