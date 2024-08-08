@@ -66,6 +66,8 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
         try {
             if (voteType.equals("GA")) {
                 discussGameService.voteGameAliasDiscuss(voteDTO);
+            }else if (voteType.equals("GC")) {
+                discussGameService.voteGameCreateDiscuss(voteDTO);
             }
         }catch(Exception e){ // TODO: BusinessException 으로 수정
             return new ResponseEntity<>("Vote Failed", HttpStatus.CONFLICT);

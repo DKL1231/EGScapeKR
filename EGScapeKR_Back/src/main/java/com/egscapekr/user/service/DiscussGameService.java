@@ -20,14 +20,16 @@ public class DiscussGameService {
     private final GameRepository gameRepository;
     private final GameAliasRepository gameAliasRepository;
     private final GameAliasVoteRepository gameAliasVoteRepository;
+    private final GameCreateVoteRepository gameCreateVoteRepository;
 
-    public DiscussGameService(DiscussGameAliasRepository discussGameAliasRepository, DiscussGameCreateRepository discussGameCreateRepository, UserRepository userRepository, GameRepository gameRepository, GameAliasRepository gameAliasRepository, GameAliasVoteRepository gameAliasVoteRepository) {
+    public DiscussGameService(DiscussGameAliasRepository discussGameAliasRepository, DiscussGameCreateRepository discussGameCreateRepository, UserRepository userRepository, GameRepository gameRepository, GameAliasRepository gameAliasRepository, GameAliasVoteRepository gameAliasVoteRepository, GameCreateVoteRepository gameCreateVoteRepository) {
         this.discussGameAliasRepository = discussGameAliasRepository;
         this.discussGameCreateRepository = discussGameCreateRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
         this.gameAliasRepository = gameAliasRepository;
         this.gameAliasVoteRepository = gameAliasVoteRepository;
+        this.gameCreateVoteRepository = gameCreateVoteRepository;
     }
 
     public void createGameAliasDiscuss(DiscussGameAliasReqDTO discussGameAliasReqDTO){
@@ -101,5 +103,38 @@ public class DiscussGameService {
         }
 
         discussGameAliasRepository.save(discussGameAlias);
+    }
+
+    public void voteGameCreateDiscuss(VoteDTO voteDTO){
+        // TODO : BusinessException 작성
+        DiscussGameCreate discussGameCreate = discussGameCreateRepository.findByDiscussGameCreateId(voteDTO.getDiscussId());
+        User user = userRepository.findByUsername(voteDTO.getUsername());
+        if(user == null || discussGameCreate == null){
+            throw new EntityNotFoundException();
+        }
+        GameCreateVote gameCreateVote = gameCreateVoteRepository.findByDiscussGameCreateAndUser(discussGameCreate, user);
+        if(gameCreateVote == null) {
+            gameCreateVote = new GameCreateVote();
+            gameCreateVote.setDiscussGameCreate(discussGameCreate);
+            gameCreateVote.setUser(user);
+        }else{ // 이미 투표한 내용이 있다면
+            if(gameCreateVote.isAgree()){
+                discussGameCreate.setAgree(discussGameCreate.getAgree()-1);
+            }else{
+                discussGameCreate.setDisagree(discussGameCreate.getDisagree()-1);
+            }
+        }
+        gameCreateVote.setAgree(gameCreateVote.isAgree());
+
+        gameCreateVoteRepository.save(gameCreateVote);
+
+        // TODO : 만약 Agree 가 일정 수 이상이고 Agree : Disagree 가 일정 비율 이상이면 Create
+        if(gameCreateVote.isAgree()){
+            discussGameCreate.setAgree(discussGameCreate.getAgree()+1);
+        }else{
+            discussGameCreate.setDisagree(discussGameCreate.getDisagree()+1);
+        }
+
+        discussGameCreateRepository.save(discussGameCreate);
     }
 }

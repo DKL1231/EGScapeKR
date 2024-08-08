@@ -26,5 +26,8 @@ public class User {
     private List<DiscussGameAlias> discussGameAliases;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GameAliasVote> votes;
+    private List<GameAliasVote> aliasVotes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GameCreateVote> createVotes;
 }

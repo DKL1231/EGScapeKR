@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -41,6 +42,9 @@ public class DiscussGameCreate {
     private String genre; // 장르
     private String twitter; // 트위터 아이디
     private String vndb; // vndb아이디
+
+    @OneToMany(mappedBy = "discussGameCreate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameCreateVote> votes;
 
     public DiscussGameCreate(DiscussGameCreateReqDTO discussGameCreateReqDTO){
         this.createAt = discussGameCreateReqDTO.getCreateAt();
