@@ -91,7 +91,7 @@ public class DiscussGameService {
                 discussGameAlias.setDisagree(discussGameAlias.getDisagree()-1);
             }
         }
-        gameAliasVote.setAgree(gameAliasVote.isAgree());
+        gameAliasVote.setAgree(voteDTO.isAgree());
 
         gameAliasVoteRepository.save(gameAliasVote);
 

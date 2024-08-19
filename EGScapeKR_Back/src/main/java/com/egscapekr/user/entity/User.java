@@ -26,8 +26,17 @@ public class User {
     private List<DiscussGameAlias> discussGameAliases;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GameAliasVote> aliasVotes;
+    private List<DiscussBrandAlias> discussBrandAliases;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GameCreateVote> createVotes;
+    private List<DiscussGameCreate> discussGameCreates;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GameAliasVote> gameAliasVotes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BrandAliasVote> brandAliasVotes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GameCreateVote> gameCreateVotes;
 }

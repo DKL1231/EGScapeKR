@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DiscussBrandAliasRepository extends JpaRepository<DiscussBrandAlias, Integer> {
+    DiscussBrandAlias findByDiscussBrandAliasId(Integer discussBrandAliasId);
 }

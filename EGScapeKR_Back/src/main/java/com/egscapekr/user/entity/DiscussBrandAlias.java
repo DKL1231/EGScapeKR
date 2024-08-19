@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"gameAlias", "game_id"})
+        @UniqueConstraint(columnNames = {"brandAlias", "brand_id"})
 })
 public class DiscussBrandAlias {
     @Id
