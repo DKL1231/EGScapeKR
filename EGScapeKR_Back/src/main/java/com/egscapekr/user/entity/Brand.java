@@ -27,4 +27,6 @@ public class Brand {
     private List<Game> games;
     @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BrandAlias> aliases;
+    @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DiscussBrandAlias> discussAliases;
 }

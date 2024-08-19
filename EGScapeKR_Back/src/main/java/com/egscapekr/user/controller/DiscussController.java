@@ -1,9 +1,11 @@
 package com.egscapekr.user.controller;
 
+import com.egscapekr.user.dto.DiscussBrandAliasReqDTO;
 import com.egscapekr.user.dto.DiscussGameAliasReqDTO;
 import com.egscapekr.user.dto.DiscussGameCreateReqDTO;
 import com.egscapekr.user.dto.VoteDTO;
 import com.egscapekr.user.jwt.JWTUtil;
+import com.egscapekr.user.service.DiscussBrandService;
 import com.egscapekr.user.service.DiscussGameService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DuplicateKeyException;
@@ -21,10 +23,12 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
 
     private final JWTUtil jwtUtil;
     private final DiscussGameService discussGameService;
+    private final DiscussBrandService discussBrandService;
 
-    public DiscussController(JWTUtil jwtUtil, DiscussGameService discussGameService) {
+    public DiscussController(JWTUtil jwtUtil, DiscussGameService discussGameService, DiscussBrandService discussBrandService) {
         this.jwtUtil = jwtUtil;
         this.discussGameService = discussGameService;
+        this.discussBrandService = discussBrandService;
     }
 
     private String getUsernameFromAccessToken(HttpServletRequest req){
@@ -52,6 +56,18 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
             discussGameService.createGameCreateDiscuss(discussGameCreateReqDTO);
         }catch(DuplicateKeyException e){
             return new ResponseEntity<>("Duplicate Game or No erogescape Id", HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
+    }
+
+    @PostMapping("/create/alias/brand")
+    public ResponseEntity<String> createBrandAliasDiscuss(HttpServletRequest req, DiscussBrandAliasReqDTO discussBrandAliasReqDTO){
+        String username = getUsernameFromAccessToken(req);
+        discussBrandAliasReqDTO.setUsername(username);
+        try{
+            discussBrandService.createBrandAliasDiscuss(discussBrandAliasReqDTO);
+        }catch (Exception e){
+            return new ResponseEntity<>("Duplicate Brand", HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
     }
