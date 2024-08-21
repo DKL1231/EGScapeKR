@@ -1,11 +1,9 @@
 package com.egscapekr.user.service;
 
 import com.egscapekr.user.dto.DiscussBrandAliasReqDTO;
+import com.egscapekr.user.dto.DiscussBrandCreateReqDTO;
 import com.egscapekr.user.dto.VoteDTO;
-import com.egscapekr.user.entity.BrandAlias;
-import com.egscapekr.user.entity.BrandAliasVote;
-import com.egscapekr.user.entity.DiscussBrandAlias;
-import com.egscapekr.user.entity.User;
+import com.egscapekr.user.entity.*;
 import com.egscapekr.user.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
@@ -19,14 +17,17 @@ public class DiscussBrandService {
     private final DiscussBrandAliasRepository discussBrandAliasRepository;
     private final UserRepository userRepository;
     private final BrandRepository brandRepository;
+    private final DiscussBrandCreateRepository discussBrandCreateRepository;
     private final BrandAliasVoteRepository brandAliasVoteRepository;
 
     public DiscussBrandService(BrandAliasRepository brandAliasRepository, DiscussBrandAliasRepository discussBrandAliasRepository,
-                               UserRepository userRepository, BrandRepository brandRepository, BrandAliasVoteRepository brandAliasVoteRepository) {
+                               UserRepository userRepository, BrandRepository brandRepository,
+                               DiscussBrandCreateRepository discussBrandCreateRepository,BrandAliasVoteRepository brandAliasVoteRepository) {
         this.brandAliasRepository = brandAliasRepository;
         this.discussBrandAliasRepository = discussBrandAliasRepository;
         this.userRepository = userRepository;
         this.brandRepository = brandRepository;
+        this.discussBrandCreateRepository = discussBrandCreateRepository;
         this.brandAliasVoteRepository = brandAliasVoteRepository;
     }
 
@@ -36,7 +37,7 @@ public class DiscussBrandService {
         }
         DiscussBrandAlias discussBrandAlias = new DiscussBrandAlias(discussBrandAliasReqDTO);
         discussBrandAlias.setUser(userRepository.findByUsername(discussBrandAliasReqDTO.getUsername()));
-        discussBrandAlias.setBrand(brandRepository.findBrandById(discussBrandAliasReqDTO.getBrandId()));
+        discussBrandAlias.setBrand(brandRepository.findBrandByBrandId(discussBrandAliasReqDTO.getBrandId()));
         discussBrandAlias.setDueTo(discussBrandAlias.getCreateAt().plusDays(15));
 
         discussBrandAliasRepository.save(discussBrandAlias);
@@ -52,6 +53,22 @@ public class DiscussBrandService {
                 return true;
         }
         return false;
+    }
+
+    public void createBrandCreateDiscuss(DiscussBrandCreateReqDTO discussBrandCreateReqDTO){
+        if(isExistBrand(discussBrandCreateReqDTO)){
+            throw new DuplicateKeyException("중복된 브랜드입니다.");
+        }
+        DiscussBrandCreate discussBrandCreate = new DiscussBrandCreate(discussBrandCreateReqDTO);
+        discussBrandCreate.setUser(userRepository.findByUsername(discussBrandCreateReqDTO.getUsername()));
+        discussBrandCreate.setDueTo(discussBrandCreateReqDTO.getCreateAt().plusDays(15));
+
+        discussBrandCreateRepository.save(discussBrandCreate);
+    }
+
+    private boolean isExistBrand(DiscussBrandCreateReqDTO discussBrandCreateReqDTO){
+        Brand brand = brandRepository.findBrandByBrandId(discussBrandCreateReqDTO.getBrandId());
+        return brand != null;
     }
 
     public void voteBrandAliasDiscuss(VoteDTO voteDTO){

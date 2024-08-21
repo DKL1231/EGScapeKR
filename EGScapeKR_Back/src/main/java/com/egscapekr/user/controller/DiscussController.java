@@ -1,9 +1,6 @@
 package com.egscapekr.user.controller;
 
-import com.egscapekr.user.dto.DiscussBrandAliasReqDTO;
-import com.egscapekr.user.dto.DiscussGameAliasReqDTO;
-import com.egscapekr.user.dto.DiscussGameCreateReqDTO;
-import com.egscapekr.user.dto.VoteDTO;
+import com.egscapekr.user.dto.*;
 import com.egscapekr.user.jwt.JWTUtil;
 import com.egscapekr.user.service.DiscussBrandService;
 import com.egscapekr.user.service.DiscussGameService;
@@ -67,6 +64,18 @@ public class DiscussController { // 게임/브랜드 또는 게임/브랜드의 
         try{
             discussBrandService.createBrandAliasDiscuss(discussBrandAliasReqDTO);
         }catch (Exception e){
+            return new ResponseEntity<>("Duplicate Brand", HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
+    }
+
+    @PostMapping("/create/create/brand")
+    public ResponseEntity<String> createBrandCreateDiscuss(HttpServletRequest req, DiscussBrandCreateReqDTO discussBrandCreateReqDTO){
+        String username = getUsernameFromAccessToken(req);
+        discussBrandCreateReqDTO.setUsername(username);
+        try{
+            discussBrandService.createBrandCreateDiscuss(discussBrandCreateReqDTO);
+        }catch(Exception e){
             return new ResponseEntity<>("Duplicate Brand", HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>("Add Discuss Success", HttpStatus.OK);
