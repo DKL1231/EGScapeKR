@@ -19,16 +19,19 @@ public class DiscussBrandService {
     private final BrandRepository brandRepository;
     private final DiscussBrandCreateRepository discussBrandCreateRepository;
     private final BrandAliasVoteRepository brandAliasVoteRepository;
+    private final BrandCreateVoteRepository brandCreateVoteRepository;
 
     public DiscussBrandService(BrandAliasRepository brandAliasRepository, DiscussBrandAliasRepository discussBrandAliasRepository,
                                UserRepository userRepository, BrandRepository brandRepository,
-                               DiscussBrandCreateRepository discussBrandCreateRepository,BrandAliasVoteRepository brandAliasVoteRepository) {
+                               DiscussBrandCreateRepository discussBrandCreateRepository,BrandAliasVoteRepository brandAliasVoteRepository,
+                               BrandCreateVoteRepository brandCreateVoteRepository) {
         this.brandAliasRepository = brandAliasRepository;
         this.discussBrandAliasRepository = discussBrandAliasRepository;
         this.userRepository = userRepository;
         this.brandRepository = brandRepository;
         this.discussBrandCreateRepository = discussBrandCreateRepository;
         this.brandAliasVoteRepository = brandAliasVoteRepository;
+        this.brandCreateVoteRepository = brandCreateVoteRepository;
     }
 
     public void createBrandAliasDiscuss(DiscussBrandAliasReqDTO discussBrandAliasReqDTO){
@@ -101,5 +104,37 @@ public class DiscussBrandService {
         }
 
         discussBrandAliasRepository.save(discussBrandAlias);
+    }
+
+    public void voteBrandCreateDiscuss(VoteDTO voteDTO){
+        DiscussBrandCreate discussBrandCreate = discussBrandCreateRepository.findByDiscussBrandCreateId(voteDTO.getDiscussId());
+        User user = userRepository.findByUsername(voteDTO.getUsername());
+        if(user == null || discussBrandCreate == null){
+            throw new EntityNotFoundException();
+        }
+        BrandCreateVote brandCreateVote = brandCreateVoteRepository.findByDiscussBrandCreateAndUser(discussBrandCreate, user);
+        if(brandCreateVote == null){
+            brandCreateVote = new BrandCreateVote();
+            brandCreateVote.setDiscussBrandCreate(discussBrandCreate);
+            brandCreateVote.setUser(user);
+        }else{
+            if(brandCreateVote.isAgree()){
+                discussBrandCreate.setAgree(discussBrandCreate.getAgree() - 1);
+            }else{
+                discussBrandCreate.setDisagree(discussBrandCreate.getDisagree() - 1);
+            }
+        }
+        brandCreateVote.setAgree(voteDTO.isAgree());
+
+        brandCreateVoteRepository.save(brandCreateVote);
+
+        // TODO : 만약 Agree 가 일정 수 이상이고 Agree : Disagree 가 일정 비율 이상이면 Brand 추가
+        if(brandCreateVote.isAgree()){
+            discussBrandCreate.setAgree(discussBrandCreate.getAgree()+1);
+        }else{
+            discussBrandCreate.setDisagree(discussBrandCreate.getDisagree()+1);
+        }
+
+        discussBrandCreateRepository.save(discussBrandCreate);
     }
 }

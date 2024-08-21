@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,6 +33,9 @@ public class DiscussBrandCreate {
     private String brandName;
     private String url;
     private String twitter;
+
+    @OneToMany(mappedBy = "discussBrandCreate", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BrandCreateVote> votes;
 
     public DiscussBrandCreate(DiscussBrandCreateReqDTO discussBrandCreateReqDTO){
         this.createAt = discussBrandCreateReqDTO.getCreateAt();
